@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Baloo+Thambi|Comfortaa"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+
+  <body>
+    <h1 class="title">Etch-a-keyring</h1>
+    <p>By Manchester Hackerspace</p>
+
+    <!-- 
+      soft check the code so the user can't accidentally draw without
+      first having a code. This is not a secure check, it's just to stop mistakes.
+    -->
+    <div class="step" id="step1">
+      <h2>Welcome! Please enter your unique code</h2>
+      <input id="code" type="text" pattern="\d*" inputmode="numeric" />
+      <button id="verify">Verify</button>
+      <span id="incorrectCode" class="hidden">Incorrect Code</span>
+    </div>
+
+    <!--  If they have a code, or have removed our CSS, show the canvas-->
+    <div id="step2" class="step hidden">
+      <h2>Get drawing!</h2>
+
+      <p>To draw, drag in the space below</p>
+      <canvas id="myCanvas" width="200" height="200"></canvas>
+
+      <h2>Save your drawing</h2>
+      <p>
+        <button id="save">Save</button> <br />
+        <span id="link"></span> Then head to the laser cutter when you're ready,
+        and present your ticket
+      </p>
+    </div>
+
+    <script
+      type="text/javascript"
+      src="/scripts/paper/dist/paper-full.min.js"
+    ></script>
+    <script type="text/paperscript" canvas="myCanvas" src="script.js"></script>
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", function(event) {
+        var input = document.getElementById("code");
+
+        // Execute a function when the user releases a key on the keyboard
+        input.addEventListener("keyup", function(event) {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Number 13 is the "Enter" key on the keyboard
+          if (event.keyCode === 13) {
+            // Trigger the button element with a click
+            document.getElementById("verify").click();
+          }
+        });
+      });
+
+      document.addEventListener("DOMContentLoaded", function(event) {
+        document.getElementById("save").onclick = function() {
+          let code = document.getElementById("code").value;
+          let rawSVG = paper.project.exportSVG({ asString: true });
+
+          var fileName = "custom.svg";
+          var file = "data:image/svg+xml;utf8," + encodeURIComponent(rawSVG);
+          var link = document.createElement("a");
+          link.download = fileName;
+          link.href = file;
+          link.text = "Click here to download your file";
+          document.getElementById("link").append(link);
+
+          const Http = new XMLHttpRequest();
+          const url = `/save/${code}?svg=${rawSVG})}`;
+          Http.open("POST", url);
+          Http.send();
+          Http.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              console.log("=============");
+              console.log(Http.responseText);
+            }
+          };
+        };
+
+        document.getElementById("verify").onclick = function() {
+          var code = document.getElementById("code").value;
+
+          const Http = new XMLHttpRequest();
+          const url = `/verify-code?code=${code}`;
+          Http.open("GET", url);
+          Http.send();
+          Http.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              const json = JSON.parse(Http.responseText);
+              if (json.valid) {
+                document.getElementById("step1").classList.add("hidden");
+                document.getElementById("step2").classList.remove("hidden");
+              } else {
+                document
+                  .getElementById("incorrectCode")
+                  .classList.remove("hidden");
+              }
+            }
+          };
+        };
+      });
+    </script>
+  </body>
+</html>
