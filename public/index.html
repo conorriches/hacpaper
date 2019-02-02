@@ -30,12 +30,21 @@
       <p>To draw, drag in the space below</p>
       <canvas id="myCanvas" width="200" height="200"></canvas>
 
-      <h2>Save your drawing</h2>
+      <h2>When you're done, save your drawing.</h2>
+      <p><button id="save">Save</button> <br /></p>
+    </div>
+
+    <!--  Saved! -->
+    <div id="step3" class="step hidden">
+      <h2 id="confirmation">Saving your design...</h2>
+      <p><span id="saveMessage">please wait</span></p>
+      <button id="goBack">Go back</button>
+      <h2>Download it and etch it at our space!</h2>
       <p>
-        <button id="save">Save</button> <br />
-        <span id="link"></span> Then head to the laser cutter when you're ready,
-        and present your ticket
+        If you want to join up and use our laser cutter, save the design and
+        then have a go etching it yourself!
       </p>
+      <span id="link">Please wait...</span>
     </div>
 
     <script
@@ -61,6 +70,10 @@
 
       document.addEventListener("DOMContentLoaded", function(event) {
         document.getElementById("save").onclick = function() {
+          //Next step!
+          document.getElementById("step2").classList.add("hidden");
+          document.getElementById("step3").classList.remove("hidden");
+
           let code = document.getElementById("code").value;
           let rawSVG = paper.project.exportSVG({ asString: true });
 
@@ -70,6 +83,12 @@
           link.download = fileName;
           link.href = file;
           link.text = "Click here to download your file";
+
+          //Clear
+          document.getElementById("saveMessage").innerHTML = "";
+          document.getElementById("link").innerHTML = "";
+
+          //SEt the link
           document.getElementById("link").append(link);
 
           const Http = new XMLHttpRequest();
@@ -78,10 +97,37 @@
           Http.send();
           Http.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-              console.log("=============");
-              console.log(Http.responseText);
+              document
+                .getElementById("saveMessage")
+                .append(
+                  "Your design has been saved. Please go to the etching table and present your card."
+                );
+              document.getElementById("confirmation").innerHTML =
+                "Wohoo! Go get your design etched!";
+              document.getElementById("saveMessage").classList.add("success");
             }
           };
+          Http.onerror = function() {
+            console.error("** An error occurred during the transaction");
+            document
+              .getElementById("saveMessage")
+              .append(
+                "There was an error saving your design - please download it and try again."
+              );
+            document.getElementById("confirmation").innerHTML =
+              "Oops! Unable to save";
+            document.getElementById("saveMessage").classList.add("failure");
+          };
+        };
+
+        document.getElementById("goBack").onclick = function() {
+          document.getElementById("saveMessage").innerHTML = "Please Wait";
+          document.getElementById("confirmation").innerHTML =
+            "Saving your design...";
+          document.getElementById("step3").classList.add("hidden");
+          document.getElementById("step2").classList.remove("hidden");
+          document.getElementById("saveMessage").classList.remove("success");
+          document.getElementById("saveMessage").classList.remove("failure");
         };
 
         document.getElementById("verify").onclick = function() {

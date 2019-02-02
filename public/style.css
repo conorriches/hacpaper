@@ -43,3 +43,23 @@ button {
   border-radius: 1em;
   max-width: 500px;
 }
+
+#saveMessage {
+  border: 1px solid black;
+  padding: 5px;
+  background: yellow;
+  display: block;
+}
+
+#saveMessage.failure {
+  background: red;
+}
+
+#saveMessage.success {
+  background: limegreen;
+}
+#link {
+  border: 1px solid black;
+  padding: 5px;
+  display: block;
+}
