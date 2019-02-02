@@ -6,45 +6,51 @@
     />
     <link rel="stylesheet" type="text/css" href="style.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffff00" />
   </head>
 
   <body>
-    <h1 class="title">Etch-a-keyring</h1>
-    <p>By Manchester Hackerspace</p>
-
-    <!-- 
-      soft check the code so the user can't accidentally draw without
-      first having a code. This is not a secure check, it's just to stop mistakes.
-    -->
-    <div class="step" id="step1">
-      <h2>Welcome! Please enter your unique code</h2>
-      <input id="code" type="text" pattern="\d*" inputmode="numeric" />
-      <button id="verify">Verify</button>
-      <span id="incorrectCode" class="hidden">Incorrect Code</span>
+    <div id="header">
+      <h1 class="title">Etch-a-keyring</h1>
+      <p>By Manchester Hackerspace</p>
+      <span id="myCode">...</span>
     </div>
 
-    <!--  If they have a code, or have removed our CSS, show the canvas-->
-    <div id="step2" class="step hidden">
-      <h2>Get drawing!</h2>
+    <div id="content">
+      <!-- 
+        soft check the code so the user can't accidentally draw without
+        first having a code. This is not a secure check, it's just to stop mistakes.
+      -->
+      <div class="step" id="step1">
+        <h2>Welcome! Please enter your unique code</h2>
+        <input id="code" type="text" pattern="\d*" inputmode="numeric" />
+        <button id="verify">Verify</button>
+        <span id="incorrectCode" class="hidden">Incorrect Code</span>
+      </div>
 
-      <p>To draw, drag in the space below</p>
-      <canvas id="myCanvas" width="200" height="200"></canvas>
+      <!--  If they have a code, or have removed our CSS, show the canvas-->
+      <div id="step2" class="step hidden">
+        <h2>Get drawing!</h2>
 
-      <h2>When you're done, save your drawing.</h2>
-      <p><button id="save">Save</button> <br /></p>
-    </div>
+        <p>To draw, drag in the space below</p>
+        <canvas id="myCanvas" width="200" height="200"></canvas>
 
-    <!--  Saved! -->
-    <div id="step3" class="step hidden">
-      <h2 id="confirmation">Saving your design...</h2>
-      <p><span id="saveMessage">please wait</span></p>
-      <button id="goBack">Go back</button>
-      <h2>Download it and etch it at our space!</h2>
-      <p>
-        If you want to join up and use our laser cutter, save the design and
-        then have a go etching it yourself!
-      </p>
-      <span id="link">Please wait...</span>
+        <h2>When you're done, save your drawing.</h2>
+        <p><button id="save">Save</button> <br /></p>
+      </div>
+
+      <!--  Saved! -->
+      <div id="step3" class="step hidden">
+        <h2 id="confirmation">Saving your design...</h2>
+        <p><span id="saveMessage">please wait</span></p>
+        <button id="goBack">Go back</button>
+        <h2>Download it and etch it at our space!</h2>
+        <p>
+          If you want to join up and use our laser cutter, save the design and
+          then have a go etching it yourself!
+        </p>
+        <span id="link">Please wait...</span>
+      </div>
     </div>
 
     <script
@@ -141,6 +147,7 @@
             if (this.readyState == 4 && this.status == 200) {
               const json = JSON.parse(Http.responseText);
               if (json.valid) {
+                document.getElementById("myCode").innerHTML = "#" + code;
                 document.getElementById("step1").classList.add("hidden");
                 document.getElementById("step2").classList.remove("hidden");
               } else {
@@ -152,6 +159,10 @@
           };
         };
       });
+
+      window.onbeforeunload = function() {
+        return "Careful! If you haven't saved, you'll loose your design.";
+      };
     </script>
   </body>
 </html>
