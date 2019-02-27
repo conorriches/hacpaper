@@ -21,6 +21,22 @@ body {
   box-shadow: #888 0px 10px 40px -10px;
   margin-bottom: 40px;
 }
+
+#header.admin {
+  background: repeating-linear-gradient(
+    45deg,
+    yellow,
+    yellow 10px,
+    rgb(255, 208, 0) 10px,
+    rgb(255, 208, 0) 20px
+  );
+  color: black;
+  position: relative;
+  border-bottom: 10px solid red;
+  box-shadow: #888 0px 10px 40px -10px;
+  margin-bottom: 40px;
+}
+
 #header > h1,
 #header > p {
   margin: 0;
@@ -90,4 +106,16 @@ button {
   border: 1px solid black;
   padding: 5px;
   display: block;
+}
+
+#code.success {
+  background: lightgreen;
+}
+
+#shapeRadio {
+  list-style: none;
+}
+
+#shapeRadio li {
+  margin: 20px 0;
 }

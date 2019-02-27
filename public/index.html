@@ -22,10 +22,36 @@
         first having a code. This is not a secure check, it's just to stop mistakes.
       -->
       <div class="step" id="step1">
-        <h2>Welcome! Please enter your unique code</h2>
-        <input id="code" type="text" pattern="\d*" inputmode="numeric" />
-        <button id="verify">Verify</button>
-        <span id="incorrectCode" class="hidden">Incorrect Code</span>
+        <h2>Welcome! This is your chance to etch your own thing!</h2>
+        <h2>Designing is free, etching here costs from £2</h2>
+        <h3>Please choose the shape:</h3>
+        <ul id="shapeRadio">
+          <li>
+            <input
+              type="radio"
+              id="circle"
+              name="shape"
+              value="circle"
+              checked
+            />
+            <label for="circle">Circle</label>
+          </li>
+          <li>
+            <input
+              type="radio"
+              id="hexagon"
+              name="shape"
+              value="hexagon"
+              checked
+            />
+            <label for="hexagon">Hexagon</label>
+          </li>
+          <li>
+            <input type="radio" id="robot" name="shape" value="robot" checked />
+            <label for="robot">Robot</label>
+          </li>
+        </ul>
+        <button id="begin">Begin!</button>
       </div>
 
       <!--  If they have a code, or have removed our CSS, show the canvas-->
@@ -60,27 +86,26 @@
     <script type="text/paperscript" canvas="myCanvas" src="script.js"></script>
     <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", function(event) {
-        var input = document.getElementById("code");
+        // BEGIN
+        console.log(document.cookie);
+        document.getElementById("begin").onclick = function() {
+          var shape = document.querySelector('input[name="shape"]:checked')
+            .value;
+          document.cookie = "shape=" + shape + "; path=/";
 
-        // Execute a function when the user releases a key on the keyboard
-        input.addEventListener("keyup", function(event) {
-          // Cancel the default action, if needed
-          event.preventDefault();
-          // Number 13 is the "Enter" key on the keyboard
-          if (event.keyCode === 13) {
-            // Trigger the button element with a click
-            document.getElementById("verify").click();
-          }
-        });
-      });
+          document.getElementById("myCode").innerHTML = "UNSAVED";
+          document.getElementById("step1").classList.add("hidden");
+          document.getElementById("step2").classList.remove("hidden");
+        };
 
-      document.addEventListener("DOMContentLoaded", function(event) {
+        // SAVE
         document.getElementById("save").onclick = function() {
+          var shape = getCookie("shape");
+
           //Next step!
           document.getElementById("step2").classList.add("hidden");
           document.getElementById("step3").classList.remove("hidden");
 
-          let code = document.getElementById("code").value;
           let rawSVG = paper.project.exportSVG({ asString: true });
 
           var fileName = "custom.svg";
@@ -98,7 +123,8 @@
           document.getElementById("link").append(link);
 
           const Http = new XMLHttpRequest();
-          const url = `/save/${code}?svg=${rawSVG})}`;
+          const url = `/save/${shape}?svg=${encodeURIComponent(rawSVG)})}`;
+
           Http.open("POST", url);
           Http.send();
           Http.onreadystatechange = function() {
@@ -126,6 +152,7 @@
           };
         };
 
+        // BACK
         document.getElementById("goBack").onclick = function() {
           document.getElementById("saveMessage").innerHTML = "Please Wait";
           document.getElementById("confirmation").innerHTML =
@@ -135,34 +162,27 @@
           document.getElementById("saveMessage").classList.remove("success");
           document.getElementById("saveMessage").classList.remove("failure");
         };
-
-        document.getElementById("verify").onclick = function() {
-          var code = document.getElementById("code").value;
-
-          const Http = new XMLHttpRequest();
-          const url = `/verify-code?code=${code}`;
-          Http.open("GET", url);
-          Http.send();
-          Http.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-              const json = JSON.parse(Http.responseText);
-              if (json.valid) {
-                document.getElementById("myCode").innerHTML = "#" + code;
-                document.getElementById("step1").classList.add("hidden");
-                document.getElementById("step2").classList.remove("hidden");
-              } else {
-                document
-                  .getElementById("incorrectCode")
-                  .classList.remove("hidden");
-              }
-            }
-          };
-        };
       });
 
       window.onbeforeunload = function() {
         return "Careful! If you haven't saved, you'll loose your design.";
       };
+
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(";");
+        for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == " ") {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
     </script>
   </body>
 </html>

@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Baloo+Thambi|Comfortaa"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffff00" />
+  </head>
+
+  <body>
+    <div id="header" class="admin">
+      <h1 class="title">Etch-a-keyring Admin</h1>
+      <p>By Manchester Hackerspace</p>
+      <span id="myCode">...</span>
+    </div>
+
+    <div id="content">
+      <div class="step">
+        <h2>Code Input</h2>
+        <input id="code" />
+        <button id="verify">Verify</button>
+        <span id="incorrectCode" class="hidden">Incorrect Code</span>
+      </div>
+
+      <div class="step">
+        <h2>Update</h2>
+      </div>
+
+      <div class="step">
+        <h2>Stats</h2>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", function(event) {
+        var input = document.getElementById("code");
+
+        // Execute a function when the user releases a key on the keyboard
+        input.addEventListener("keyup", function(event) {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Number 13 is the "Enter" key on the keyboard
+          if (event.keyCode === 13) {
+            // Trigger the button element with a click
+            document.getElementById("verify").click();
+          }
+        });
+
+        document.getElementById("verify").onclick = function() {
+          var code = document.getElementById("code").value;
+
+          const Http = new XMLHttpRequest();
+          const url = `/svg?code=${code}`;
+          Http.open("GET", url);
+          Http.send();
+          Http.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              const json = JSON.parse(Http.responseText);
+              console.log(json);
+              if (json.success) {
+                document.getElementById("code").classList.add("success");
+                document
+                  .getElementById("incorrectCode")
+                  .classList.add("hidden");
+              } else {
+                document
+                  .getElementById("incorrectCode")
+                  .classList.remove("hidden");
+              }
+            }
+          };
+        };
+      });
+    </script>
+  </body>
+</html>
